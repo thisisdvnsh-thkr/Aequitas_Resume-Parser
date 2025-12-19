@@ -132,7 +132,7 @@ st.markdown("""
     <div style='text-align: center; color: #888888; padding: 20px;'>
         <p style='font-size: 16px; font-weight: bold;'>Aequitas AI Resume Auditor</p>
         <p>© 2025 | B.Tech AIML Final Year Minor Project</p>
-        <p>Developed by <b>Devansh Thakur</b> & [Partner Names]</p>
+        <p>Developed by <b>Devansh Thakur</b> , Arpit Upadhyay & Arjun Kumar</p>
         <p style='font-size: 12px;'>Kashipur, Uttarakhand</p>
     </div>
 """, unsafe_allow_html=True)
