@@ -1,145 +1,263 @@
 import streamlit as st
-import docx2txt
+import pdfminer
 from pdfminer.high_level import extract_text
+import docx2txt
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import re
 
-# Page Config for a Modern Look
-st.set_page_config(page_title="Aequitas | Resume Auditor", page_icon="⚖️", layout="wide")
+# --- 1. CONFIGURATION & SETUP ---
+st.set_page_config(
+    page_title="Aequitas: AI Resume Auditor",
+    page_icon="⚖️",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# --- ACTIVE THEORY INSPIRED CSS ---
+# --- 2. SKILL DATABASE ---
+SKILL_DB = [
+    "python", "java", "c++", "c", "javascript", "typescript", "php", "ruby", "swift", "kotlin", "go", "rust", "sql", "r", "matlab",
+    "html", "css", "react", "angular", "vue", "node.js", "django", "flask", "fastapi", "bootstrap", "tailwind", "jquery",
+    "pandas", "numpy", "scikit-learn", "tensorflow", "keras", "pytorch", "opencv", "nltk", "spacy", "matplotlib", "seaborn", "tableau", "power bi", "excel",
+    "aws", "azure", "google cloud", "docker", "kubernetes", "jenkins", "git", "github", "gitlab", "linux", "unix", "bash", "terraform",
+    "mysql", "postgresql", "mongodb", "oracle", "sqlite", "redis", "cassandra",
+    "communication", "leadership", "problem solving", "agile", "scrum", "project management", "critical thinking"
+]
+
+# --- 3. INJECT CUSTOM CSS ---
 st.markdown("""
     <style>
-    /* Full Page Background with 4K Texture */
-    .stApp {
-        background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
-        background-attachment: fixed;
+    /* Font Import */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    
+    html, body, [class*="css"]  {
+        font-family: 'Poppins', sans-serif;
     }
-
-    /* Cinematic Section Containers */
-    .section {
-        height: 100vh;
+    
+    /* Hide default decoration */
+    .stDeployButton {display:none;}
+    
+    /* Dark Header Strip */
+    .header-strip {
+        background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%);
+        padding: 25px;
+        border-radius: 12px;
+        color: white;
         display: flex;
-        flex-direction: column;
-        justify-content: center;
         align-items: center;
-        scroll-snap-align: start;
-        padding: 50px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .header-logo {
+        font-size: 45px;
+        margin-right: 20px;
+    }
+    .header-text h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        letter-spacing: 1px;
+    }
+    .header-text p {
+        margin: 5px 0 0 0;
+        font-size: 1rem;
+        color: #94a3b8;
     }
 
-    /* Typography: Large & Minimalist */
-    .hero-title {
-        font-size: 85px;
-        font-weight: 800;
-        letter-spacing: -3px;
-        color: white;
+    /* FASCINATING DEVELOPER NAME CARDS */
+    .dev-container {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    .dev-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #64748b;
         text-transform: uppercase;
-        margin-bottom: 0px;
-        background: -webkit-linear-gradient(#fff, #333);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        letter-spacing: 1.2px;
+        margin-bottom: 12px;
     }
-
-    /* Glassmorphic Interaction Card */
-    .interaction-card {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px);
-        border-radius: 40px;
-        padding: 50px;
-        width: 80%;
-        box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    .dev-name-card {
+        background-color: #ffffff;
+        padding: 12px 15px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        border-left: 5px solid #0078D4; /* Blue Accent */
+        font-size: 1rem;
+        font-weight: 600;
+        color: #334155;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: all 0.3s ease; /* Smooth Animation */
+        cursor: default;
     }
-
-    /* Active Theory Styled Button */
-    .stButton>button {
-        background: transparent;
+    /* Hover Effect - The Magic Part */
+    .dev-name-card:hover {
+        background-color: #0078D4;
         color: white;
-        border: 2px solid #00c7ff;
-        padding: 15px 40px;
-        border-radius: 0px; /* Sharp edges for high-end look */
-        font-size: 18px;
-        letter-spacing: 2px;
-        transition: 0.5s all;
-        width: 100%;
-    }
-    .stButton>button:hover {
-        background: #00c7ff;
-        color: black;
-        box-shadow: 0 0 30px #00c7ff;
+        transform: translateX(5px); /* Moves slightly right */
+        box-shadow: 0 4px 10px rgba(0,120,212,0.3);
     }
 
-    /* Hide UI Clutter */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+    /* Score Card & Tags */
+    .score-card {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        text-align: center;
+        border: 1px solid #e1e1e1;
+    }
+    .skill-tag {
+        display: inline-block;
+        padding: 6px 12px;
+        margin: 4px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .match-tag { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
+    .missing-tag { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
     </style>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 """, unsafe_allow_html=True)
 
-# --- ENGINE LOGIC ---
-def extract_skills(text):
-    skills = ['Python', 'Machine Learning', 'SQL', 'NLP', 'Data Science', 'Docker', 'AWS']
+# --- 4. HELPER FUNCTIONS ---
+def get_text_from_pdf(file):
+    return extract_text(file)
+def get_text_from_docx(file):
+    return docx2txt.process(file)
+def clean_text(text):
     text = text.lower()
-    return [skill for skill in skills if skill.lower() in text]
+    text = re.sub(r'\n', ' ', text)
+    text = re.sub(r'[^\w\s]', ' ', text)
+    return text
+def extract_skills(text):
+    found_skills = set()
+    cleaned_text = clean_text(text)
+    words = set(cleaned_text.split())
+    for skill in SKILL_DB:
+        if skill in words: found_skills.add(skill)
+        elif " " in skill and skill in cleaned_text: found_skills.add(skill)
+    return found_skills
 
-# --- SECTION 1: HERO ---
+# --- 5. SIDEBAR (Correct Logo & Hover Name Cards) ---
+with st.sidebar:
+    # 1. NEW LOGO (Balance Scale)
+    st.image("https://cdn-icons-png.flaticon.com/512/924/924915.png", width=60) # Blue Balance Scale Icon
+    st.title("Control Panel")
+    
+    # Upload Section
+    st.markdown("### 1. Upload Documents")
+    uploaded_jd = st.file_uploader("Job Description (JD)", type=["pdf", "docx"])
+    uploaded_resume = st.file_uploader("Candidate Resume", type=["pdf", "docx"])
+    
+    st.markdown("---")
+
+    # 2. FASCINATING DEVELOPERS SECTION
+    st.markdown("""
+        <div class="dev-container">
+            <div class="dev-title">Created By</div>
+            <div class="dev-name-card">Devansh Thakur</div>
+            <div class="dev-name-card">Arpit Upadhyay</div>
+            <div class="dev-name-card">Arjun Kumar</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("---")
+    st.caption("Aequitas v1.0 | Final Year Project")
+
+# --- 6. MAIN PAGE HEADER ---
 st.markdown("""
-    <div class="section">
-        <h1 class="hero-title">Aequitas</h1>
-        <p style='color: #00c7ff; letter-spacing: 10px; font-weight: 300; margin-top: -20px;'>RESUME AUDITOR</p>
-        <div style='margin-top: 50px; color: grey;'>Scroll to Audit ⟱</div>
+    <div class="header-strip">
+        <i class="fas fa-balance-scale header-logo" style="color: #0078D4;"></i>
+        <div class="header-text">
+            <h1>Aequitas: AI Resume Auditor</h1>
+            <p>Intelligent & Fair Resume Screening System</p>
+        </div>
     </div>
 """, unsafe_allow_html=True)
 
-# --- SECTION 2: AUDIT ENGINE ---
-st.markdown("<div id='engine' class='section'>", unsafe_allow_html=True)
-st.markdown("<div class='interaction-card'>", unsafe_allow_html=True)
+# --- 7. LOGIC & DASHBOARD ---
+if uploaded_jd and uploaded_resume:
+    with st.spinner('⚡ AI is auditing the resume...'):
+        try:
+            if uploaded_jd.type == "application/pdf": jd_text = get_text_from_pdf(uploaded_jd)
+            else: jd_text = get_text_from_docx(uploaded_jd)
+            if uploaded_resume.type == "application/pdf": resume_text = get_text_from_pdf(uploaded_resume)
+            else: resume_text = get_text_from_docx(uploaded_resume)
 
-col_a, col_b = st.columns(2)
-with col_a:
-    jd_file = st.file_uploader("TARGET: JOB DESCRIPTION", type=['pdf', 'docx'])
-with col_b:
-    res_file = st.file_uploader("SOURCE: CANDIDATE RESUME", type=['pdf', 'docx'])
+            jd_skills = extract_skills(jd_text)
+            resume_skills = extract_skills(resume_text)
+            matched_skills = jd_skills.intersection(resume_skills)
+            missing_skills = jd_skills.difference(resume_skills)
 
-audit_trigger = st.button("INITIATE AI AUDIT")
-st.markdown("</div></div>", unsafe_allow_html=True)
+            jd_clean = clean_text(jd_text)
+            resume_clean = clean_text(resume_text)
+            cv = CountVectorizer()
+            count_matrix = cv.fit_transform([jd_clean, resume_clean])
+            match_percentage = round(cosine_similarity(count_matrix)[0][1] * 100, 2)
 
-# --- SECTION 3: INSIGHTS & SCORING ---
-if audit_trigger:
-    if res_file and jd_file:
-        # Processing Logic (Simplified for brevity)
-        res_text = extract_text(res_file) if res_file.name.endswith('.pdf') else docx2txt.process(res_file)
-        jd_text = extract_text(jd_file) if jd_file.name.endswith('.pdf') else docx2txt.process(jd_file)
-        
-        cv = CountVectorizer()
-        count_matrix = cv.fit_transform([res_text, jd_text])
-        score = round(cosine_similarity(count_matrix)[0][1] * 100, 2)
+            # --- RESULT SECTION ---
+            col1, col2 = st.columns([1, 1.5])
+            with col1:
+                st.markdown('<div class="score-card">', unsafe_allow_html=True)
+                st.write("### 🎯 Match Score")
+                if match_percentage >= 75:
+                    st.markdown(f"<h1 style='color: #198754; font-size: 3.5rem;'>{match_percentage}%</h1>", unsafe_allow_html=True)
+                    st.success("✅ Excellent Match")
+                    st.balloons()
+                elif match_percentage >= 50:
+                    st.markdown(f"<h1 style='color: #fd7e14; font-size: 3.5rem;'>{match_percentage}%</h1>", unsafe_allow_html=True)
+                    st.warning("⚠️ Average Match")
+                else:
+                    st.markdown(f"<h1 style='color: #dc3545; font-size: 3.5rem;'>{match_percentage}%</h1>", unsafe_allow_html=True)
+                    st.error("❌ Low Match")
+                st.markdown('</div>', unsafe_allow_html=True)
 
-        st.markdown("<div class='section'>", unsafe_allow_html=True)
-        
-        # Scoring Information Block
-        st.markdown(f"""
-            <div style='text-align: center; max-width: 800px;'>
-                <h2 style='color: grey; font-size: 14px; letter-spacing: 5px;'>COMPATIBILITY INDEX</h2>
-                <h1 style='font-size: 120px; color: white;'>{score}%</h1>
-                <p style='color: rgba(255,255,255,0.6); line-height: 1.8;'>
-                    <b>How this score is generated:</b> Aequitas utilizes <b>Vector Space Modeling</b>. 
-                    Your documents are converted into multi-dimensional vectors using <i>Count Vectorization</i>. 
-                    The final percentage represents the <b>Cosine Similarity</b>—calculating the angle between your 
-                    skills and the job's demands to ensure an unbiased, mathematical match.
-                </p>
+            with col2:
+                st.write("### 🧬 Skill Audit")
+                st.write("**✅ Matched Skills:**")
+                if matched_skills: st.markdown("".join([f'<span class="skill-tag match-tag">{s.upper()}</span>' for s in matched_skills]), unsafe_allow_html=True)
+                else: st.warning("No skills matched directly.")
+                
+                st.write("---")
+                
+                st.write("**❌ Missing Skills:**")
+                if missing_skills: st.markdown("".join([f'<span class="skill-tag missing-tag">{s.upper()}</span>' for s in missing_skills]), unsafe_allow_html=True)
+                else: st.success("No key skills missing!")
+
+            with st.expander("📄 View Resume Snippet"):
+                st.info(resume_text[:600] + "...")
+
+        except Exception as e:
+            st.error(f"❌ Error: {e}")
+
+else:
+    # --- LANDING PAGE (UPDATED WITH YOUR S3 IMAGE) ---
+    col1, col2 = st.columns([1.2, 1])
+    
+    with col1:
+        st.image("https://website-artificio.s3.us-west-2.amazonaws.com/Resume_Parsing_a180290fcd.jpg", use_column_width=True)
+    
+    with col2:
+        st.markdown("""
+        <div style="padding-top: 20px; padding-left: 10px;">
+            <h2 style="color: #2c3e50;">Automated Resume Parsing</h2>
+            <p style="font-size: 1.1rem; color: #555; line-height: 1.6;">
+                <b>Aequitas AI</b> is a powerful tool designed to help recruiters and candidates by providing an unbiased, automated analysis of resumes against job descriptions.
+            </p>
+            <ul style="font-size: 1rem; line-height: 1.8; color: #444;">
+                <li>🚀 <b>Instant Match Calculation</b></li>
+                <li>⚖️ <b>Fair & Unbiased Screening</b></li>
+                <li>🔍 <b>Detailed Skill Gap Analysis</b></li>
+            </ul>
+            <br>
+            <div style="background-color: #f1f5f9; padding: 15px; border-radius: 8px; border-left: 5px solid #0078D4;">
+                <small>👈 <b>Start Audit:</b> Upload JD & Resume from the Sidebar.</small>
             </div>
+        </div>
         """, unsafe_allow_html=True)
-        
-        # Matching Logic
-        res_s = extract_skills(res_text)
-        jd_s = extract_skills(jd_text)
-        match = set(res_s).intersection(set(jd_s))
-        
-        st.markdown(f"""
-            <div style='margin-top: 50px; border-top: 1px solid #333; padding-top: 30px;'>
-                <p style='color: #00c7ff;'>AUDIT SUCCESSFUL: {len(match)} CORE COMPETENCIES VALIDATED</p>
-            </div>
-        """, unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+
