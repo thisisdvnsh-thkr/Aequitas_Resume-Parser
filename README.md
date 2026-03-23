@@ -8,7 +8,7 @@
 
 An intelligent and fair AI system for resume screening — analyses resumes against job descriptions using NLP to provide match scores and skill gap analysis, with a strong focus on reducing hiring bias.
 
-🔗 **[Launch Live App](https://aequitas-by-thisisdvnsh-thkr.streamlit.app/)**
+🔗 **[Launch Live App](https://aequitas-by-thisisdvnsh-thkr.streamlit.app)**
 
 ---
 
