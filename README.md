@@ -1,14 +1,20 @@
-# Aequitas — AI Resume Auditor
-### Python • NLP • Streamlit • Scikit-learn
+# ⚖️ Aequitas — AI Resume Auditor
 
-![Python](https://img.shields.io/badge/Python-3.10-3776AB?style=flat&logo=python&logoColor=white)
-![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)
-![NLP](https://img.shields.io/badge/NLP-Scikit--learn-F7931E?style=flat&logo=scikitlearn&logoColor=white)
-![Status](https://img.shields.io/badge/Status-Live-brightgreen?style=flat)
+### Intelligent & Fair Resume Screening System
 
-An intelligent and fair AI system for resume screening — analyses resumes against job descriptions using NLP to provide match scores and skill gap analysis, with a strong focus on reducing hiring bias.
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org) [![Streamlit](https://img.shields.io/badge/Streamlit-v2.0-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io) [![NLP](https://img.shields.io/badge/NLP-TF--IDF-00d4ff?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org) [![Live App](https://img.shields.io/badge/Live%20App-Online-00C851?style=for-the-badge&logo=streamlit&logoColor=white)](https://aequitas-by-thisisdvnshthkr.streamlit.app) [![License](https://img.shields.io/badge/License-MIT-7928CA?style=for-the-badge)](LICENSE)
 
-🔗 **[Launch Live App](https://aequitas-by-thisisdvnsh-thkr.streamlit.app)**
+<br>
+
+> An intelligent AI system for resume screening — analyses resumes against job descriptions using NLP to provide match scores and skill gap analysis, with a strong focus on **reducing hiring bias**.
+
+<br>
+
+### 🔗 [Launch Live App →](https://aequitas-by-thisisdvnshthkr.streamlit.app)
+
+<br>
+
+</div>
 
 ---
 
@@ -27,6 +33,7 @@ Traditional resume screening relies on simple keyword matching, which introduces
 - 📊 **Compatibility Score** — Calculates match percentage (0–100%) using vector similarity
 - ✅ **Matched Skills** — Shows skills present in both resume and job description
 - ❌ **Missing Skills** — Highlights critical skills absent from the resume
+- 🎨 **Dark / Light Theme** — Toggle between themes with a fixed floating button
 - ⚖️ **Bias Reduction** — Focuses purely on technical skills and content, ignoring demographic signals
 
 ---
@@ -35,12 +42,13 @@ Traditional resume screening relies on simple keyword matching, which introduces
 
 | Layer | Technology |
 |---|---|
-| Frontend | Streamlit |
-| Backend | Python 3.10 |
-| NLP & ML | Scikit-learn (Cosine Similarity, CountVectorizer) |
-| PDF Parsing | pdfminer.six |
-| DOCX Parsing | docx2txt |
-| Text Processing | Regex, Tokenization |
+| **Frontend** | Streamlit |
+| **Backend** | Python 3.11 |
+| **NLP & ML** | Scikit-learn (TF-IDF Vectorizer, Cosine Similarity) |
+| **PDF Parsing** | pdfminer.six |
+| **DOCX Parsing** | docx2txt |
+| **Text Processing** | Regex, Tokenization |
+| **Deployment** | Streamlit Community Cloud |
 
 ---
 
@@ -48,19 +56,25 @@ Traditional resume screening relies on simple keyword matching, which introduces
 
 ```
 Resume (PDF/DOCX) ──┐
-                    ├──► Text Extraction & Cleaning
-JD (PDF/DOCX) ─────┘         │
-                              ▼
-                    NLP Processing
-                    (Tokenization + Regex)
-                              │
-                              ▼
-                    Cosine Similarity
-                    (CountVectorizer)
-                              │
-                              ▼
-                    Match Score (0–100%)
-                    + Skill Gap Analysis
+├──► Text Extraction & Cleaning
+JD (PDF/DOCX) ─────┘ │
+▼
+NLP Processing
+(Tokenization + Regex Cleaning)
+│
+▼
+TF-IDF Vectorization
+(Term Frequency — Inverse Document Frequency)
+│
+▼
+Cosine Similarity Score
+│
+▼
+┌──────────────────────────┐
+│ Match Score (0–100%) │
+│ + Matched Skills │
+│ + Missing Skills │
+└──────────────────────────┘
 ```
 
 ---
@@ -91,30 +105,32 @@ pip install -r requirements.txt
 ```bash
 streamlit run app.py
 ```
-
+**4. Open in browser**
+```bash
+http://localhost:8501
+```
 ---
 
 ## 📁 Project Structure
 
 ```
-├── .devcontainer/     # Dev container config
-├── images/            # UI screenshots
-├── app.py             # Main Streamlit application
-├── requirements.txt   # Python dependencies
-├── runtime.txt        # Python version spec
-└── README.md
+Aequitas_Resume-Parser/
+│
+├── app.py                  # Main Streamlit application
+├── requirements.txt        # Python dependencies
+├── runtime.txt             # Python version → python-3.11
+└── README.md               # Project documentation
 ```
 
 ---
 
 ## 👥 Contributors
 
-**Devansh Thakur** — Project Lead & Developer  
-[LinkedIn](https://linkedin.com/in/devansh-thakur) • [GitHub](https://github.com/thisisdvnsh-thkr)
+<table> <tr> <td align="center"> <strong>Devansh Thakur</strong><br> <em>Lead Architect & Developer</em><br> <a href="https://linkedin.com/in/devansh-thakur">💼 LinkedIn</a> • <a href="https://github.com/thisisdvnsh-thkr">👤 GitHub</a> </td> <td align="center"> <strong>Arpit Upadhyay</strong><br> <em>Co-Developer</em><br> <a href="https://github.com/ArpitUpadhyay">👤 GitHub</a> </td> </tr> </table>
+<div align="center">
+Aequitas v2.0 © 2026  |  Built with Python & Streamlit
+Powered by TF-IDF Vectorization & Cosine Similarity
 
-**Arpit Upadhyay** — Contributor  
-[GitHub](https://github.com/Arpit7088)
+⭐ Star this repo if you found it useful!
 
----
-
-*Built with Python & Streamlit*
+</div> ```
