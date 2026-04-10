@@ -748,7 +748,7 @@ def main():
             key='resume',
             label_visibility="collapsed"
         )
-        st.markdown('<div class="file-size-label">📎 &nbsp;PDF or DOCX &nbsp;•&nbsp; Max 5MB</div>', unsafe_allow_html=True)
+        st.markdown('<div class="file-size-label">📎 &nbsp;PDF or DOCX &nbsp</div>', unsafe_allow_html=True)
 
     with col2:
         st.markdown('<span class="upload-label">Job Description</span>', unsafe_allow_html=True)
@@ -758,7 +758,7 @@ def main():
             key='jd',
             label_visibility="collapsed"
         )
-        st.markdown('<div class="file-size-label">📎 &nbsp;PDF or DOCX &nbsp;•&nbsp; Max 5MB</div>', unsafe_allow_html=True)
+        st.markdown('<div class="file-size-label">📎 &nbsp;PDF or DOCX &nbsp</div>', unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)
 
